@@ -13,6 +13,7 @@ LocalMonitor sniffer;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 void report_connections() {
+    cout << "Starting reported thread" << endl;
     while (true) {
         sniffer.report_connections();
         std::this_thread::sleep_for(std::chrono::milliseconds(10000));
@@ -29,15 +30,18 @@ bool capture_loop(Packet& packet) {
     return true;
 }
 
-int main(int argc, char const * const argv[]) {
-    if (argc < 3) {
-        cerr << "usage: " << argv[0] << " interface serialize_dest";
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        cerr << "usage: " << argv[0] << " interface" << endl;
+        return 1;
     }
 
-    std::thread serializer(report_connections);
+    sniffer.start("127.0.0.1", 5000);
+
+    std::thread reporter(report_connections);
 
     Sniffer sniffer(argv[1], Sniffer::PROMISC);
     sniffer.sniff_loop(capture_loop);
-    serializer.join();
+    reporter.join();
     return 0;
 }

@@ -6,20 +6,25 @@
 #define HOME_SECURITY_COMMUNICATOR_H
 
 #include <string>
+#include <thread>
 #include <tins/tins.h>
+#include "abstract_socket/CrossPlatformSocket.h"
 
 class Communicator {
 private:
     Tins::IP::address_type server_address;
     uint16_t server_port;
 
-public:
-    Communicator(const std::string &server_address, uint16_t server_port) : server_address(server_address),
-                                                                                       server_port(server_port) { }
+    CrossPlatformSocket crossPlatformSocket;
 
-    void init();
+public:
+    void init(const std::string &server_address, uint16_t server_port);
 
     bool send(const uint8_t* data, size_t data_size);
+
+    void incomming_command();
+
+    void reconnect();
 };
 
 
